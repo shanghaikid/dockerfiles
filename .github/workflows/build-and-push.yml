@@ -3,7 +3,7 @@ name: Build and Push Docker Images
 on:
   push:
     paths:
-      - '**/Dockerfile'
+      - "**/Dockerfile"
 
 jobs:
   build-and-push:
@@ -33,9 +33,9 @@ jobs:
         run: |
           for dir in ${{ steps.changed-dirs.outputs.dirs }}; do
             if [ -f "$dir/Dockerfile" ]; then
-              image_name="shanghai/$(basename $dir)"
+              image_name="${{ secrets.DOCKER_HUB_USERNAME }}/$(basename $dir)"
               echo "Building and pushing $image_name from $dir"
-              docker build -t $image_name $dir
+              docker build --progress=plain -t $image_name $dir
               docker push $image_name
             fi
           done
