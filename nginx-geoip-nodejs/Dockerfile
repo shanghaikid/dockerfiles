@@ -32,8 +32,16 @@ RUN cd /opt \
     && ./configure --with-compat --add-dynamic-module=/opt/ngx_http_geoip2_module \
     && make modules
 
-# Stage 2: Final image
+# Stage 2: Final image# Stage 2: Final image
 FROM node:22-alpine
+
+# Install Nginx runtime dependencies
+RUN apk --update --no-cache add \
+        bash \
+        libmaxminddb \
+        pcre2 \
+        zlib \
+        openssl
 
 # Copy Nginx and GeoIP2 module from the builder stage
 COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
@@ -42,13 +50,6 @@ COPY --from=builder /usr/lib/nginx /usr/lib/nginx
 COPY --from=builder /var/log/nginx /var/log/nginx
 COPY --from=builder /var/cache/nginx /var/cache/nginx
 COPY --from=builder /opt/nginx/objs/ngx_http_geoip2_module.so /usr/lib/nginx/modules
-
-# Install Nginx runtime dependencies
-RUN apk --update --no-cache add \
-        bash \
-        libmaxminddb \
-        pcre \
-        zlib
 
 # Load GeoIP2 module and set permissions
 RUN chmod -R 644 /usr/lib/nginx/modules/ngx_http_geoip2_module.so \
