@@ -1,4 +1,4 @@
-# v0.1.4
+# v0.1.5
 ARG NGINX_VERSION=1.22.1
 
 FROM nginx:$NGINX_VERSION-alpine AS builder
@@ -47,8 +47,8 @@ RUN apk --update --no-cache add nodejs npm \
     && sed -i '1iload_module \/usr\/lib\/nginx\/modules\/ngx_http_geoip2_module.so;' /etc/nginx/nginx.conf
 
 # Copy GeoIP2 configuration and database
-COPY  deploy/builder/nginx-geoip2.conf /etc/nginx/conf.d/geoip2.conf
-COPY deploy/builder/dbip-country-lite.mmdb /etc/nginx/conf.d/dbip-country-lite.mmdb
+COPY nginx-geoip2.conf /etc/nginx/conf.d/geoip2.conf
+COPY dbip-country-lite.mmdb /etc/nginx/conf.d/dbip-country-lite.mmdb
 
 # Verify Node.js installation
 RUN node -v && npm -v
