@@ -33,7 +33,7 @@ RUN cd /opt \
     && make modules
 
 # Stage 2: Final image
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Install Nginx runtime dependencies
 RUN apk --update --no-cache add \
