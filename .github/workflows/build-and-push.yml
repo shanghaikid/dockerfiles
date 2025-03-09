@@ -3,7 +3,7 @@ name: Build and Push Docker Images
 on:
   push:
     paths:
-      - '**/Dockerfile'
+      - "**/Dockerfile"
 
 jobs:
   build-and-push:
@@ -38,11 +38,15 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          for dir in ${{ steps.changed-dirs.outputs.dirs }}; do
+          for dir in $(echo "${{ steps.changed-dirs.outputs.dirs }}" | tr ',' '\n'); do
+            echo "Checking directory: $dir"
             if [ -f "$dir/Dockerfile" ]; then
+              echo "Dockerfile found in $dir"
               image_name="${{ secrets.DOCKER_HUB_USERNAME }}/$(basename $dir)"
               echo "Building and pushing $image_name from $dir"
               docker build --progress=plain -t $image_name $dir
               docker push $image_name
+            else
+              echo "No Dockerfile found in $dir"
             fi
           done
