@@ -35,6 +35,9 @@ RUN cd /opt \
 # Stage 2: Final image# Stage 2: Final image
 FROM node:22-alpine
 
+# Stage 2: Final image
+FROM node:20-alpine
+
 # Install Nginx runtime dependencies
 RUN apk --update --no-cache add \
         bash \
@@ -42,6 +45,9 @@ RUN apk --update --no-cache add \
         pcre2 \
         zlib \
         openssl
+
+# Create the nginx user and group
+RUN addgroup -S nginx && adduser -S nginx -G nginx
 
 # Copy Nginx and GeoIP2 module from the builder stage
 COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
