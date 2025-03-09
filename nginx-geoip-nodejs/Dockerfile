@@ -33,17 +33,22 @@ RUN cd /opt \
     && make modules
 
 # Stage 2: Final image
-FROM nginx:$NGINX_VERSION-alpine
+FROM node:22-alpine
 
-# Install runtime dependencies
-RUN apk --update --no-cache add --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
+# Copy Nginx and GeoIP2 module from the builder stage
+COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
+COPY --from=builder /etc/nginx /etc/nginx
+COPY --from=builder /usr/lib/nginx /usr/lib/nginx
+COPY --from=builder /var/log/nginx /var/log/nginx
+COPY --from=builder /var/cache/nginx /var/cache/nginx
+COPY --from=builder /opt/nginx/objs/ngx_http_geoip2_module.so /usr/lib/nginx/modules
+
+# Install Nginx runtime dependencies
+RUN apk --update --no-cache add \
         bash \
         libmaxminddb \
-        nodejs \
-        npm
-
-# Copy GeoIP2 module from the builder stage
-COPY --from=builder /opt/nginx/objs/ngx_http_geoip2_module.so /usr/lib/nginx/modules
+        pcre \
+        zlib
 
 # Load GeoIP2 module and set permissions
 RUN chmod -R 644 /usr/lib/nginx/modules/ngx_http_geoip2_module.so \
@@ -55,3 +60,9 @@ COPY dbip-country-lite.mmdb /etc/nginx/conf.d/dbip-country-lite.mmdb
 
 # Verify Node.js installation
 RUN node -v && npm -v
+
+# Expose ports
+EXPOSE 80
+
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
