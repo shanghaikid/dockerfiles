@@ -3,7 +3,7 @@ name: Build and Push Docker Images
 on:
   push:
     paths:
-      - "**/Dockerfile"
+      - '**/Dockerfile'
 
 jobs:
   build-and-push:
@@ -25,9 +25,18 @@ jobs:
       - name: Find changed directories
         id: changed-dirs
         run: |
-          changed_dirs=$(git diff --name-only HEAD^ HEAD | xargs -I {} dirname {} | sort | uniq)
+          # First, check if the HEAD is a valid commit
+          if git rev-parse --verify HEAD^ > /dev/null 2>&1; then
+            # If it is, list the changed directories
+            changed_dirs=$(git diff --name-only HEAD^ HEAD | xargs -I {} dirname {} | sort | uniq)
+          else
+            # Otherwise, list all directories
+            changed_dirs=$(git ls-tree --full-tree --name-only -r HEAD | xargs -I {} dirname {} | sort | uniq)
+          fi
+
           echo "Changed directories: $changed_dirs"
-          echo "::set-output name=dirs::$changed_dirs"
+          # Save the changed directories to an output variable
+          echo "dirs=$changed_dirs" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker images
         run: |
