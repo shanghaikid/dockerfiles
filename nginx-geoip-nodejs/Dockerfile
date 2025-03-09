@@ -32,9 +32,6 @@ RUN cd /opt \
     && ./configure --with-compat --add-dynamic-module=/opt/ngx_http_geoip2_module \
     && make modules
 
-# Stage 2: Final image# Stage 2: Final image
-FROM node:22-alpine
-
 # Stage 2: Final image
 FROM node:20-alpine
 
@@ -48,6 +45,12 @@ RUN apk --update --no-cache add \
 
 # Create the nginx user and group
 RUN addgroup -S nginx && adduser -S nginx -G nginx
+
+# Create the default Nginx static file directory
+RUN mkdir -p /usr/share/nginx/html
+
+# Copy default Nginx static files from the nginx:alpine image
+COPY --from=nginx:alpine /usr/share/nginx/html /usr/share/nginx/html
 
 # Copy Nginx and GeoIP2 module from the builder stage
 COPY --from=builder /usr/sbin/nginx /usr/sbin/nginx
