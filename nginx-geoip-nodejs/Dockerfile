@@ -36,10 +36,10 @@ RUN cd /opt \
 FROM nginx:$NGINX_VERSION-alpine
 
 # Install runtime dependencies
-RUN apk --update --no-cache add \
+RUN apk --update --no-cache add --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
         bash \
         libmaxminddb \
-        nodejs=20.10.0-r0 \
+        nodejs \
         npm
 
 # Copy GeoIP2 module from the builder stage
