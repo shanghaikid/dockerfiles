@@ -1,4 +1,4 @@
-# v0.1.2
+# v0.1.3
 ARG NGINX_VERSION=1.22.1
 
 FROM nginx:$NGINX_VERSION-alpine AS builder

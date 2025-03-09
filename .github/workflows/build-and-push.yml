@@ -25,17 +25,15 @@ jobs:
       - name: Find changed directories
         id: changed-dirs
         run: |
-          # First, check if the HEAD is a valid commit
           if git rev-parse --verify HEAD^ > /dev/null 2>&1; then
-            # If it is, list the changed directories
             changed_dirs=$(git diff --name-only HEAD^ HEAD | xargs -I {} dirname {} | sort | uniq)
           else
-            # Otherwise, list all directories
             changed_dirs=$(git ls-tree --full-tree --name-only -r HEAD | xargs -I {} dirname {} | sort | uniq)
           fi
 
+          changed_dirs=$(echo "$changed_dirs" | tr '\n' ',' | sed 's/,$//')
+
           echo "Changed directories: $changed_dirs"
-          # Save the changed directories to an output variable
           echo "dirs=$changed_dirs" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker images
